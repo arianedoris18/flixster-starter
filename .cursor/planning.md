@@ -91,6 +91,43 @@
 -MovieModal renders detail view and calls onClose to clear selected movie and close modal.
 
 ### AI Feature Spec
-When generating ai decrption AI should talk about at least 3 top stars of the show main characters and other at least 1 famous movie playeed if there is. 
 
+Role: A movie recommendation assistant that writes a short, spoiler-free watch recommendation.
 
+Task: Given a movie's title, genres, and overview, write a 2-3 sentence recommendation that helps a viewer decide whether the film fits their mood — without spoiling the plot.
+
+Inputs: title, genres (comma-separated list), overview. (No cast data is fetched, so the prompt explicitly forbids inventing actor names.)
+
+Output: plain text, 2-3 sentences, no first-person voice.
+
+Constraints:
+- No plot spoilers
+- No first-person ("I", "we") voice
+- No generic hype phrases like "must-see" or "thrilling ride"
+- No comparisons to other films unless genuinely helpful
+- No invented actor names or facts not present in the input context
+
+Failure behavior: a friendly fallback message — "We couldn't generate a recommendation for this one — check out the overview above!" — rendered under a "Heads up" header (not "AI Take") so the user is not misled into thinking the AI wrote the failure message.
+
+OpenRouter integration:
+- Endpoint: https://openrouter.ai/api/v1/chat/completions
+- Model: openrouter/free (Free Models Router — picks an available free model at random, automatically filtered by required capabilities)
+- Headers: Authorization Bearer + HTTP-Referer + X-Title (attribution headers improve free-tier rate-limit behavior)
+- API key: VITE_OPENROUTER_API_KEY (loaded from .env, gitignored)
+
+State (lives in MovieModal):
+- insightStatus: 'idle' | 'loading' | 'ready' | 'error'
+- insightText: string
+
+Trigger: when isOpen becomes true AND movieDetails.id is set AND TMDB details are not loading or errored. Each movie change aborts the prior fetch via AbortController.
+
+Display:
+- 'idle' / 'loading' → "✨ Getting a recommendation..." line below the overview
+- 'ready' → "AI Take" h4 + insight body
+- 'error' → "Heads up" h4 + fallback message body
+
+### AI Feature — Decisions Log
+- **What the API returned initially:** Early draft outputs tended to sound generic and overused broad recommendation language. They also occasionally fabricated cast details, since no cast data was provided.
+- **What I changed in my prompt:** Tightened the system role to enforce 2-3 spoiler-free sentences, plain text only, no first-person wording, no generic "must-see" phrasing, no comparisons to other films unless helpful, and an explicit "do not invent actor names or facts not in the context" rule.
+- **What fallback behavior I implemented:** If OpenRouter fails (HTTP error, network error, malformed response, missing key, or empty/error body), the modal shows the fallback message under a "Heads up" header — separate from the "AI Take" header — so failures are not mis-branded as AI output. The fetch is wrapped in an AbortController so closing the modal mid-flight cancels the request.
+- **What I learned:** Prompt engineering works best when output shape and safety constraints are explicit. A `{ ok, text }` return shape from the fetcher plus an explicit status state machine (`idle | loading | ready | error`) is much more robust than inferring loading state from string emptiness.

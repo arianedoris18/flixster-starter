@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import MovieList from './components/MovieList'
 import MovieModal from './components/MovieModal'
 import Footer from './components/Footer'
@@ -23,7 +23,7 @@ const App = () => {
 
       try {
         const response = await fetch(
-          `https://api.themoviedb.org/3/movie/${selectedMovieId}?api_key=${apiKey}`,
+          `https://api.themoviedb.org/3/movie/${selectedMovieId}?api_key=${apiKey}&append_to_response=videos`,
           { signal: controller.signal }
         )
 
@@ -52,19 +52,19 @@ const App = () => {
     return () => controller.abort()
   }, [selectedMovieId, isModalOpen])
 
-  const handleMovieSelect = (movieId) => {
+  const handleMovieSelect = useCallback((movieId) => {
     setSelectedMovieId(movieId)
     setMovieDetails(null)
     setDetailsError('')
     setIsModalOpen(true)
-  }
+  }, [])
 
-  const handleCloseModal = () => {
+  const handleCloseModal = useCallback(() => {
     setIsModalOpen(false)
     setSelectedMovieId(null)
     setMovieDetails(null)
     setDetailsError('')
-  }
+  }, [])
 
   return (
     <div className="App">
