@@ -170,7 +170,7 @@ const MovieModal = ({ isOpen, movieDetails, isLoading, errorMessage, onClose }) 
     if (insightStatus === 'loading') {
       return (
         <p className="movie-modalAiStatus" aria-live="polite">
-          ✨ Getting a recommendation...
+          ✨ Getting a description...
         </p>
       )
     }
