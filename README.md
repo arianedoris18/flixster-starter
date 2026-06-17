@@ -122,12 +122,17 @@ Yes, thne weather app labs helped me prepare for the building of my flister webs
 - If you had more time, what would you have done differently? Would you have added additional features? Changed the way your project responded to a particular event, etc.
 
 -Make my poster header more adjusted and centered. 
+
 -Add more design to my website
+
 -In the modals to add pictures of the main movie players or characters. 
+
 -Remove Get Description button in header.
+
 -Add the nearest theaters to watch the movie from
 
 - Reviews from people who watched the movies.
+  
 
 - Reflect on your project demo, what went well? Were there things that maybe didn't go as planned? Did you notice something that your peer did that you would like to try next time?
 
